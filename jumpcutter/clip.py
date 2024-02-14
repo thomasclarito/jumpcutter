@@ -1,12 +1,14 @@
 from typing import Dict, List, Tuple
 
 import numpy as np
+import csv
 
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.fx.all import speedx
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from tqdm import tqdm
+from datetime import timedelta
 
 
 class Clip:
@@ -38,6 +40,14 @@ class Clip:
             space_on_edges,
         )
         outputs = {}
+        csv_file = self.clip.filename.replace(".mp4", ".csv")
+        print(f"Writing timestamps to {csv_file}")
+        with open(csv_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Start', 'End'])
+            for interval in intervals_to_cut:
+                writer.writerow([timedelta(seconds=interval[0]), timedelta(seconds=interval[1])])   
+            
         for cut in cuts:
             jumpcutted_clips = self.cut_to_method[cut](intervals_to_cut)
             outputs[cut] = concatenate_videoclips(jumpcutted_clips)
